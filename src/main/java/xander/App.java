@@ -12,13 +12,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-// import org.apache.http.entity.StringEntity.UrlEncodedFormEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
-/**
- * Hello world!
- *
- */
+
 public class App 
 {
 
@@ -26,25 +22,25 @@ public class App
   public static final String doc2 = "./Data2.xlsx";
   public static final int cols = 3;
   public static final int rows = 5;
-  // public static final String postURL = "http://34.239.125.159:5000/challenge";
+  public static final String postURL = "http://34.239.125.159:5000/challenge";
 
     public static void main(String[] args) {
-      System.out.println("help");
-
+      // Open workbooks
       Workbook wb1;
       Workbook wb2;
       
-
       try {
         wb1 = WorkbookFactory.create(new File(doc1));
         wb2 = WorkbookFactory.create(new File(doc2));
-      }  catch(Exception ioe) {
+      }
+      catch(Exception ioe) {
         ioe.printStackTrace();
         System.exit(1);
         return;
       }
       Workbook books[] = {wb1, wb2};
 
+      // Read into Dataset class
       Dataset ds1 = new Dataset(rows-1);
       Dataset ds2 = new Dataset(rows-1);
       Dataset sets[] = {ds1, ds2};
@@ -63,6 +59,7 @@ public class App
         }
       }
 
+      // Operate and add to array
       int numberSetOne[] = new int[rows-1];
       int numberSetTwo[] = new int[rows-1];
       String wordSetOne[] = new String[rows-1];
@@ -73,6 +70,7 @@ public class App
         wordSetOne[i] = ds1.wordSet[i] + " " + ds2.wordSet[i];
       }
 
+      // Create JSON
       String json = new JSONObject()
         .put("id", "xander@xanderb.com")
         .put("numberSetOne", numberSetOne)
@@ -81,18 +79,22 @@ public class App
         .toString();
       System.out.println(json);
 
+      // POST request
       try {
-        String postURL = "http://ptsv2.com/t/gztfh-1530466570/post";
         HttpClient httpClient = HttpClientBuilder.create().build();
+
         HttpPost post = new HttpPost(postURL);
         post.setHeader("Content-type", "application/json");
         post.setHeader("Accept", "application/json");
         post.setEntity(new StringEntity(json));
+
         HttpResponse response = httpClient.execute(post);
         System.out.println(response.toString());
-      } catch(Exception ioe) {
+      }
+      catch(Exception ioe) {
         ioe.printStackTrace();
         System.exit(1);
+        return;
       }
 
     }
