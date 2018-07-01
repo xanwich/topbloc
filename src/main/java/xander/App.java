@@ -12,7 +12,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.StringEntity.UrlEncodedFormEntity;
+// import org.apache.http.entity.StringEntity.UrlEncodedFormEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 /**
@@ -40,7 +40,8 @@ public class App
         wb2 = WorkbookFactory.create(new File(doc2));
       }  catch(Exception ioe) {
         ioe.printStackTrace();
-        System.exit()
+        System.exit(1);
+        return;
       }
       Workbook books[] = {wb1, wb2};
 
@@ -80,14 +81,19 @@ public class App
         .toString();
       System.out.println(json);
 
-      String postURL = "http://ptsv2.com/t/gztfh-1530466570/post";
-      HttpClient httpClient = HttpClientBuilder.create().build();
-      HttpPost post = new HttpPost(postURL);
-      post.setHeader("Content-type", "application/json");
-      post.setHeader("Accept", "application/json");
-      post.setEntity(new UrlEncodedFormEntity(json));
-      HttpResponse response = httpClient.execute(post);
-      System.out.println(response.toString());
+      try {
+        String postURL = "http://ptsv2.com/t/gztfh-1530466570/post";
+        HttpClient httpClient = HttpClientBuilder.create().build();
+        HttpPost post = new HttpPost(postURL);
+        post.setHeader("Content-type", "application/json");
+        post.setHeader("Accept", "application/json");
+        post.setEntity(new StringEntity(json));
+        HttpResponse response = httpClient.execute(post);
+        System.out.println(response.toString());
+      } catch(Exception ioe) {
+        ioe.printStackTrace();
+        System.exit(1);
+      }
 
     }
 }
