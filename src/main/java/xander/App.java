@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.util.Iterator;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.*;
+import org.json.*;
+import oracle.json;
 
 /**
  * Hello world!
@@ -23,44 +25,65 @@ public class App
     public static void main(String[] args) {
       System.out.println("help");
 
+      Workbook wb1;
+      Workbook wb2;
+      
+
       try {
-        Workbook wb1 = WorkbookFactory.create(new File(doc1));
-        Workbook wb2 = WorkbookFactory.create(new File(doc2));
-        Workbook books[] = {wb1, wb2};
+        wb1 = WorkbookFactory.create(new File(doc1));
+        wb2 = WorkbookFactory.create(new File(doc2));
 
-        Dataset ds1 = new Dataset(rows-1);
-        Dataset ds2 = new Dataset(rows-1);
-        Dataset sets[] = {ds1, ds2};
-
-        for (int i = 0; i < 2; i++) {
-          Workbook wb = books[i];
-          Dataset ds = sets[i];
-          Sheet sheet = wb.getSheetAt(0);
-          // account for header
-          for (int r = 1; r < rows; r ++) {
-            Row row = sheet.getRow(r);
-            ds.numSet1[r-1] = (int) row.getCell(0).getNumericCellValue();
-            ds.numSet2[r-1] = (int) row.getCell(1).getNumericCellValue();
-            ds.wordSet[r-1] = row.getCell(2).toString();
-            // System.out.println(ds.wordSet[r-1]);
-          }
-        }
-
-        int nums1[] = new int[rows-1];
-        int nums2[] = new int[rows-1];
-        String words[] = new String[rows-1];
-
-        for (int i = 0; i < (rows-1); i++) {
-          nums1[i] = ds1.numSet1[i] * ds2.numSet1[i];
-          nums2[i] = ds1.numSet2[i] / ds2.numSet2[i];
-          words[i] = ds1.wordSet[i] + " " + ds2.wordSet[i];
-          System.out.println(nums1[i]);
-          System.out.println(nums2[i]);
-          System.out.println(words[i]);
-        }
-
-      } catch(Exception ioe) {
+      }  catch(Exception ioe) {
         ioe.printStackTrace();
       }
+      Workbook books[] = {wb1, wb2};
+
+      Dataset ds1 = new Dataset(rows-1);
+      Dataset ds2 = new Dataset(rows-1);
+      Dataset sets[] = {ds1, ds2};
+
+      for (int i = 0; i < 2; i++) {
+        Workbook wb = books[i];
+        Dataset ds = sets[i];
+        Sheet sheet = wb.getSheetAt(0);
+        // account for header
+        for (int r = 1; r < rows; r ++) {
+          Row row = sheet.getRow(r);
+          ds.numSet1[r-1] = (int) row.getCell(0).getNumericCellValue();
+          ds.numSet2[r-1] = (int) row.getCell(1).getNumericCellValue();
+          ds.wordSet[r-1] = row.getCell(2).toString();
+          // System.out.println(ds.wordSet[r-1]);
+        }
+      }
+
+      int numberSetOne[] = new int[rows-1];
+      int numberSetTwo[] = new int[rows-1];
+      String words[] = new String[rows-1];
+
+      JSONBuilderFactory factory = Json.createBuilderFactory(config);
+
+      JsonArray numberSetOneJSON = factory.createArrayBuilder();
+      JsonArray numberSetTwoJSON = factory.createArrayBuilder();
+      JsonArray wordSetOneJSON = factory.createArrayBuilder();
+
+      for (int i = 0; i < (rows-1); i++) {
+        numberSetOne[i] = ds1.numSet1[i] * ds2.numSet1[i];
+        numberSetTwo[i] = ds1.numSet2[i] / ds2.numSet2[i];
+        wordSetOne[i] = ds1.wordSet[i] + " " + ds2.wordSet[i];
+
+        numberSetOneJSON.add(numberSetOne[i]);
+        numberSetTwoJSON.add(numberSetTwo[i]);
+        wordSetOneJSON.add(wordSetOne[i]);
+      }
+
+      JsonObject value = factory.createObjectBuilder()
+        .add("id", "xander@xanderb.com")
+        .add("numberSetOne", numberSetOneJSON)
+        .add("numberSetTwo", numberSetTwoJSON)
+        .add("wordSetOne", wordSetOneJSON)
+        .build();
+      System.out.println(value);
+
+      
     }
 }
